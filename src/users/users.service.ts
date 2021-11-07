@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -9,12 +10,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 import * as argon2 from 'argon2';
+import { RegisterDto } from 'src/auth/dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Msg } from './users.controller';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto | RegisterDto): Promise<User> {
     const { email, password, cedula } = createUserDto;
     await this.uniqueEmailCedula(email, cedula);
 
@@ -40,11 +44,20 @@ export class UsersService {
     return users;
   }
 
-  async findOne(id: string): Promise<User> {
+  async findById(id: string): Promise<User> {
     const user = await this.userModel.findById(id).exec();
 
     if (!user) {
       throw new NotFoundException('No hay usuario');
+    }
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email }).exec();
+
+    if (!user) {
+      throw new NotFoundException('Datos invalidos');
     }
     return user;
   }
@@ -70,6 +83,32 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async resetPassword(
+    id: string,
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<Msg> {
+    const { newPassword: password, oldPassword } = resetPasswordDto;
+    const user = await this.userModel.findById(id);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no existe');
+    }
+
+    const validPassword = await argon2.verify(user.password, oldPassword);
+
+    if (!validPassword) {
+      throw new UnauthorizedException('Contraseñas no concuerdan');
+    }
+
+    const newPassword = await argon2.hash(password);
+
+    user.password = newPassword;
+
+    await user.save();
+
+    return { msg: 'Contraseña reseteada' };
   }
 
   private async uniqueEmailCedula(

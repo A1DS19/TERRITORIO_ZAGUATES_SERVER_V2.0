@@ -9,7 +9,7 @@ export interface EnvConfiguration {
     REGION: string;
     S3_BUCKET: string;
   };
-  JWT_SECRET_TOKEN: string;
+  JWT_SECRET_KEY: string;
 }
 
 export const env_config = (): EnvConfiguration => ({
@@ -23,5 +23,5 @@ export const env_config = (): EnvConfiguration => ({
     REGION: process.env.AWS_REGION,
     S3_BUCKET: process.env.AWS_S3_BUCKET,
   },
-  JWT_SECRET_TOKEN: process.env.JWT_SECRET_KEY,
+  JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
 });

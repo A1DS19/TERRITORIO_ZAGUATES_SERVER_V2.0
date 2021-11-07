@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsOptional,
   IsString,
   Length,
   MinLength,
@@ -19,6 +20,7 @@ export class CreateUserDto {
   @MinLength(1, { message: 'Debe agregar su apellido' })
   lastName: string;
 
+  @IsOptional()
   @IsString({
     message: (args: ValidationArguments) => {
       if (args.value !== 'true' || args.value !== 'false') {
