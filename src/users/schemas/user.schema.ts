@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
+import { Pet } from 'src/pets/entities/pet.entity';
 
 export type UserDocument = User & Document;
 
@@ -40,11 +41,15 @@ export class User {
   phone: string;
 
   @Prop({
-    type: Array(mongoose.Schema.Types.ObjectId),
-    ref: 'Pet',
-    default: [],
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Pet',
+        default: [],
+      },
+    ],
   })
-  wishlist: any[];
+  wishlist: string[];
 
   @Prop({ type: String, default: 'false' })
   donation: string;

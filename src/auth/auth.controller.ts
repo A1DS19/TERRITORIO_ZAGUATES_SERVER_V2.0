@@ -5,7 +5,9 @@ import {
   Request,
   Get,
   Body,
+  UseInterceptors,
 } from '@nestjs/common';
+import { _idTransformInterceptor } from 'src/interceptors/_id-transform.interceptor';
 import { User } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { AuthService, TokenWithUser } from './auth.service';
@@ -32,6 +34,7 @@ export class AuthController {
     return await this.authService.login(user);
   }
 
+  @UseInterceptors(_idTransformInterceptor)
   @UseGuards(JwtAuthGuard)
   @Get('/me')
   async me(@Request() req): Promise<User> {
