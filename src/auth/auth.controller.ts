@@ -14,6 +14,7 @@ import { AuthService, TokenWithUser } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { _idTransformTokenUserInterceptor } from './interceptors/_idTransformTokenUser.interceptor';
 
 @Controller('auth')
 export class AuthController {
@@ -23,11 +24,13 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalAuthGuard)
+  @UseInterceptors(_idTransformTokenUserInterceptor)
   @Post('/login')
   async login(@Request() req): Promise<TokenWithUser> {
     return await this.authService.login(req.user as User);
   }
 
+  @UseInterceptors(_idTransformTokenUserInterceptor)
   @Post('/register')
   async register(@Body() body: RegisterDto): Promise<TokenWithUser> {
     const user = await this.usersService.create(body);
