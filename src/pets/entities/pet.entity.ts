@@ -21,6 +21,9 @@ export class Pet {
   @Prop({ type: [String], default: [] })
   photosUrl: string[];
 
+  @Prop({ type: [String], default: [] })
+  photosPublicId: string[];
+
   @Prop({ type: String })
   description: string;
 
@@ -35,6 +38,9 @@ export class Pet {
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   adopteeId: string;
+
+  @Prop({ type: String })
+  cedulaAdoptee: string;
 
   @Prop({ type: String })
   employee: string;

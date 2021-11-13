@@ -6,8 +6,7 @@ import { UsersService } from 'src/users/users.service';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { Pet, PetDocument } from './entities/pet.entity';
-import * as mongoose from 'mongoose';
-import { User } from 'src/users/schemas/user.schema';
+import { FilesService } from './files/files.service';
 
 export type PaginatedPets = {
   pets: Pet[];
@@ -21,6 +20,7 @@ export class PetsService {
   constructor(
     @InjectModel(Pet.name) private petModel: Model<PetDocument>,
     private usersService: UsersService,
+    private filesService: FilesService,
   ) {}
 
   async create(createPetDto: CreatePetDto): Promise<Pet> {
@@ -132,15 +132,21 @@ export class PetsService {
     }
 
     if (updatePetDto.adopted === 'true') {
-      console.log('update');
-
       const date = new Date();
       const user = await this.usersService.findByCedula(updatePetDto.adopteeId);
+      const cedula = updatePetDto.adopteeId;
+
+      if (user.users.length <= 0) {
+        throw new NotFoundException(
+          `Cedula ${updatePetDto.adopteeId} no existe`,
+        );
+      }
 
       delete updatePetDto.adopteeId;
 
-      const update = {
-        adopteeId: (user as any)._id,
+      const update: Partial<Pet> = {
+        adopteeId: (user as any).users[0]._id,
+        cedulaAdoptee: cedula,
         followUpDate: new Date(date.setMonth(date.getMonth() + 1)),
         ...updatePetDto,
       };
@@ -157,6 +163,10 @@ export class PetsService {
     if (!pet) {
       throw new NotFoundException('Mascota no existe');
     }
+
+    const res_del = await this.filesService.deleteFiles(id);
+
+    console.log(res_del);
 
     return { msg: 'Mascota eliminada' };
   }

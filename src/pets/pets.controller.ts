@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { PaginatedPets, PetsService, PetStatus } from './pets.service';
 import { CreatePetDto } from './dto/create-pet.dto';
@@ -19,10 +20,15 @@ import { Pet } from './entities/pet.entity';
 import { IsValidID } from 'src/pipes/is-valid-id.pipe';
 import { Msg } from 'src/users/users.controller';
 import { _idTransformInterceptor } from 'src/interceptors/_id-transform.interceptor';
+import { FilesService } from './files/files.service';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('pets')
 export class PetsController {
-  constructor(private readonly petsService: PetsService) {}
+  constructor(
+    private readonly petsService: PetsService,
+    private readonly filesService: FilesService,
+  ) {}
 
   @UseInterceptors(_idTransformInterceptor)
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -80,5 +86,15 @@ export class PetsController {
   @Delete(':id')
   async remove(@Param('id', new IsValidID()) id: string): Promise<Msg> {
     return await this.petsService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors(FilesInterceptor('images'))
+  @Post('/upload/:id')
+  async uploadFiles(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Param('id', new IsValidID()) petId: string,
+  ): Promise<any> {
+    return await this.filesService.uploadFiles(files, petId);
   }
 }

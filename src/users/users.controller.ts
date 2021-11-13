@@ -20,7 +20,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/guards/isAdmin.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { _idTransformInterceptor } from 'src/interceptors/_id-transform.interceptor';
-import { Pet } from 'src/pets/entities/pet.entity';
 
 export type Msg = {
   msg: string;
