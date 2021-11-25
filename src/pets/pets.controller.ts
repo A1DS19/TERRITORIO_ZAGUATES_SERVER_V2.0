@@ -22,6 +22,7 @@ import { Msg } from 'src/users/users.controller';
 import { _idTransformInterceptor } from 'src/interceptors/_id-transform.interceptor';
 import { FilesService } from './files/files.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { DeleteImgDto } from './dto/delete-img.dto';
 
 @Controller('pets')
 export class PetsController {
@@ -96,5 +97,12 @@ export class PetsController {
     @Param('id', new IsValidID()) petId: string,
   ): Promise<any> {
     return await this.filesService.uploadFiles(files, petId);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors()
+  @Post('/delete-img')
+  async deleteImage(@Body() body: DeleteImgDto): Promise<any> {
+    return await this.filesService.deleteFile(body);
   }
 }

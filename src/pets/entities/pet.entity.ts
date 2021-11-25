@@ -3,6 +3,10 @@ import * as mongoose from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 
 export type PetDocument = Pet & Document;
+type PhotosPublicId = {
+  photoUrl: string;
+  photoId: string;
+};
 
 @Schema({ timestamps: true, id: true })
 export class Pet {
@@ -21,8 +25,8 @@ export class Pet {
   @Prop({ type: [String], default: [] })
   photosUrl: string[];
 
-  @Prop({ type: [String], default: [] })
-  photosPublicId: string[];
+  @Prop({ default: [] })
+  photosPublicId: PhotosPublicId[];
 
   @Prop({ type: String })
   description: string;
@@ -38,6 +42,9 @@ export class Pet {
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   adopteeId: string;
+
+  @Prop({ type: Number, default: 0 })
+  interesados: number;
 
   @Prop({ type: String })
   cedulaAdoptee: string;

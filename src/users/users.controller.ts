@@ -24,39 +24,39 @@ import { _idTransformInterceptor } from 'src/interceptors/_id-transform.intercep
 export type Msg = {
   msg: string;
 };
-@UseGuards(JwtAuthGuard)
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseInterceptors(_idTransformInterceptor)
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.usersService.create(createUserDto);
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   async findAll(@Query('page') page: string): Promise<PaginatedUsers> {
     return await this.usersService.findAll(page);
   }
 
   @UseInterceptors(_idTransformInterceptor)
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, AuthGuard)
   @Get(':id')
   async findById(@Param('id', new IsValidID()) id: string): Promise<User> {
     return await this.usersService.findById(id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, AuthGuard)
   @Get('/cedula/:cedula')
   async findByCedula(@Param('cedula') cedula: string): Promise<PaginatedUsers> {
     return await this.usersService.findByCedula(cedula);
   }
 
   @UseInterceptors(_idTransformInterceptor)
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, AuthGuard)
   @Patch(':id')
   async update(
     @Param('id', new IsValidID()) id: string,
@@ -66,13 +66,13 @@ export class UsersController {
   }
 
   @UseInterceptors(_idTransformInterceptor)
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, AuthGuard)
   @Delete(':id')
   async remove(@Param('id', new IsValidID()) id: string): Promise<User> {
     return await this.usersService.remove(id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, AuthGuard)
   @Patch('/reset-password/:id')
   async resetPassword(
     @Param('id') id: string,
@@ -81,14 +81,14 @@ export class UsersController {
     return this.usersService.resetPassword(id, body);
   }
 
-  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch('/reset-password-admin/:id')
   async resetPasswordAdmin(@Param('id') id: string): Promise<Msg> {
     return this.usersService.resetPaswordAdmin(id);
   }
 
   @UseInterceptors(_idTransformInterceptor)
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard, AuthGuard)
   @Patch('/add-favorite-pets/:userId/:petId/:exists')
   async addFavoritePet(
     @Param('userId', new IsValidID()) userId: string,
@@ -98,7 +98,6 @@ export class UsersController {
     return await this.usersService.addFavoritePet(userId, petId, exists);
   }
 
-  @UseGuards(AuthGuard)
   @Get('/get-favorite-pets/:userId')
   async getFavoritePets(
     @Param('userId', new IsValidID()) userId: string,

@@ -13,6 +13,7 @@ import * as argon2 from 'argon2';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Msg } from './users.controller';
+import { Pet, PetDocument } from 'src/pets/entities/pet.entity';
 
 export type PaginatedUsers = {
   users: User[];
@@ -21,7 +22,10 @@ export type PaginatedUsers = {
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Pet.name) private petModel: Model<PetDocument>,
+  ) {}
 
   async create(createUserDto: CreateUserDto | RegisterDto): Promise<User> {
     const { email, password, cedula } = createUserDto;
@@ -171,6 +175,7 @@ export class UsersService {
     exists: string,
   ): Promise<User> {
     const user = await this.userModel.findById(userId);
+    const pet = await this.petModel.findById(petId);
 
     if (!user) {
       throw new BadRequestException('Datos invalidos');
@@ -178,8 +183,12 @@ export class UsersService {
 
     if (!JSON.parse(exists)) {
       user.wishlist.push(petId);
+      pet.interesados += 1;
+      await pet.save();
     } else {
       user.wishlist = user.wishlist.filter((x) => x.toString() !== petId);
+      pet.interesados -= 1;
+      await pet.save();
     }
 
     await user.save();
