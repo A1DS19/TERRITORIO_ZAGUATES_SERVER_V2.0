@@ -36,6 +36,7 @@
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "cloudinary": "^1.27.1",
+    "helmet": "^4.6.0",
     "mongoose": "^6.0.12",
     "mongoose-rename-id": "^1.0.2",
     "passport": "^0.5.0",
